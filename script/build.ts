@@ -51,6 +51,9 @@ async function buildAll() {
   ];
   const externals = allDeps.filter((dep) => !allowlist.includes(dep));
 
+  // Force-external transitive deps that use dynamic imports
+  const forceExternal = ["mongodb", "mongoose", "resend", "cloudinary", "bcryptjs", "@google/genai", "@google/generative-ai"];
+
   await esbuild({
     entryPoints: ["server/index.ts"],
     platform: "node",
@@ -61,7 +64,7 @@ async function buildAll() {
       "process.env.NODE_ENV": '"production"',
     },
     minify: true,
-    external: externals,
+    external: [...new Set([...externals, ...forceExternal])],
     logLevel: "info",
   });
 }
